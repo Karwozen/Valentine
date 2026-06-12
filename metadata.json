@@ -1,0 +1,6 @@
+{
+  "name": "Valentine's Gamified Gift",
+  "description": "A gamified Valentine's Day gift SPA with a memory quiz and a surprise reveal.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
