@@ -93,49 +93,42 @@ function getDirectImageUrl(link: string): string {
   return link;
 }
 
-// 20 Caminhos de arquivos locais (de '/foto1.jpg' até '/foto20.jpg')
-const USER_PHOTOS = Array.from({ length: 20 }, (_, i) => `/foto${i + 1}.jpg`);
-const PHOTOS = USER_PHOTOS;
+// 20 Fotos vindas diretamente do Google Drive, formatadas para download direto
+const PHOTOS = DRIVE_LINKS.map(getDirectImageUrl);
 
-// 20 posições descentralizadas para cobrir a tela sem invadir o centro
+// 20 posições descentralizadas para cobrir a tela sem invadir o centro com escala ampliada em 1.5x
 const PHOTO_POSITIONS = [
-  // Coluna Esquerda Externa (Left column outer)
-  { top: "2%", left: "1%", right: undefined, bottom: undefined, rotation: -8, size: "w-[80px] h-[80px] md:w-[240px] md:h-[240px]" },
-  { top: "26%", left: "2%", right: undefined, bottom: undefined, rotation: 10, size: "w-[88px] h-[88px] md:w-[260px] md:h-[260px]" },
-  { top: "51%", left: "1%", right: undefined, bottom: undefined, rotation: -12, size: "w-[80px] h-[80px] md:w-[240px] md:h-[240px]" },
-  { top: "76%", left: "3%", right: undefined, bottom: undefined, rotation: 6, size: "w-[88px] h-[88px] md:w-[260px] md:h-[260px]" },
+  // 1. Coluna Esquerda Externa (4 items)
+  { top: "2%", left: "1%", right: undefined, bottom: undefined, rotation: -8, size: "w-[120px] h-[120px] md:w-[360px] md:h-[360px]" },
+  { top: "26%", left: "2%", right: undefined, bottom: undefined, rotation: 10, size: "w-[132px] h-[132px] md:w-[390px] md:h-[390px]" },
+  { top: "51%", left: "1%", right: undefined, bottom: undefined, rotation: -12, size: "w-[120px] h-[120px] md:w-[360px] md:h-[360px]" },
+  { top: "76%", left: "3%", right: undefined, bottom: undefined, rotation: 6, size: "w-[132px] h-[132px] md:w-[390px] md:h-[390px]" },
 
-  // Coluna Esquerda Interna (Left column inner)
-  { top: "14%", left: "12%", right: undefined, bottom: undefined, rotation: -4, size: "w-[72px] h-[72px] md:w-[210px] md:h-[210px]" },
-  { top: "38%", left: "13%", right: undefined, bottom: undefined, rotation: 8, size: "w-[72px] h-[72px] md:w-[210px] md:h-[210px]" },
-  { top: "64%", left: "12%", right: undefined, bottom: undefined, rotation: -15, size: "w-[80px] h-[80px] md:w-[230px] md:h-[230px]" },
+  // 2. Coluna Esquerda Interna (3 items)
+  { top: "14%", left: "12%", right: undefined, bottom: undefined, rotation: -4, size: "w-[108px] h-[108px] md:w-[315px] md:h-[315px]" },
+  { top: "40%", left: "14%", right: undefined, bottom: undefined, rotation: 8, size: "w-[108px] h-[108px] md:w-[315px] md:h-[315px]" },
+  { top: "66%", left: "12%", right: undefined, bottom: undefined, rotation: -15, size: "w-[120px] h-[120px] md:w-[345px] md:h-[345px]" },
 
-  // Lateral esquerda extra (Middle-left fill)
-  { top: "45%", left: "7%", right: undefined, bottom: undefined, rotation: -5, size: "w-[76px] h-[76px] md:w-[220px] md:h-[220px]" },
+  // 3. Coluna Direita Externa (4 items)
+  { top: "2%", left: undefined, right: "1%", bottom: undefined, rotation: 12, size: "w-[120px] h-[120px] md:w-[360px] md:h-[360px]" },
+  { top: "26%", left: undefined, right: "2%", bottom: undefined, rotation: -8, size: "w-[132px] h-[132px] md:w-[390px] md:h-[390px]" },
+  { top: "51%", left: undefined, right: "1%", bottom: undefined, rotation: 15, size: "w-[120px] h-[120px] md:w-[360px] md:h-[360px]" },
+  { top: "76%", left: undefined, right: "3%", bottom: undefined, rotation: -6, size: "w-[132px] h-[132px] md:w-[390px] md:h-[390px]" },
 
-  // Coluna Direita Externa (Right column outer)
-  { top: "2%", left: undefined, right: "1%", bottom: undefined, rotation: 12, size: "w-[80px] h-[80px] md:w-[240px] md:h-[240px]" },
-  { top: "26%", left: undefined, right: "2%", bottom: undefined, rotation: -8, size: "w-[88px] h-[88px] md:w-[260px] md:h-[260px]" },
-  { top: "51%", left: undefined, right: "1%", bottom: undefined, rotation: 15, size: "w-[80px] h-[80px] md:w-[240px] md:h-[240px]" },
-  { top: "76%", left: undefined, right: "3%", bottom: undefined, rotation: -6, size: "w-[88px] h-[88px] md:w-[260px] md:h-[260px]" },
+  // 4. Coluna Direita Interna (3 items)
+  { top: "14%", left: undefined, right: "12%", bottom: undefined, rotation: 6, size: "w-[108px] h-[108px] md:w-[315px] md:h-[315px]" },
+  { top: "40%", left: undefined, right: "14%", bottom: undefined, rotation: -11, size: "w-[108px] h-[108px] md:w-[315px] md:h-[315px]" },
+  { top: "66%", left: undefined, right: "12%", bottom: undefined, rotation: 9, size: "w-[120px] h-[120px] md:w-[345px] md:h-[345px]" },
 
-  // Coluna Direita Interna (Right column inner)
-  { top: "14%", left: undefined, right: "12%", bottom: undefined, rotation: 6, size: "w-[72px] h-[72px] md:w-[210px] md:h-[210px]" },
-  { top: "38%", left: undefined, right: "13%", bottom: undefined, rotation: -11, size: "w-[72px] h-[72px] md:w-[210px] md:h-[210px]" },
-  { top: "64%", left: undefined, right: "12%", bottom: undefined, rotation: 9, size: "w-[80px] h-[80px] md:w-[230px] md:h-[230px]" },
+  // 5. Faixa Superior (3 items)
+  { top: "1%", left: "25%", right: undefined, bottom: undefined, rotation: -9, size: "w-[108px] h-[108px] md:w-[300px] md:h-[300px]" },
+  { top: "2%", left: "46%", right: undefined, bottom: undefined, rotation: 4, size: "w-[120px] h-[120px] md:w-[330px] md:h-[330px]" },
+  { top: "1%", left: "67%", right: undefined, bottom: undefined, rotation: -6, size: "w-[108px] h-[108px] md:w-[300px] md:h-[300px]" },
 
-  // Lateral direita extra (Middle-right fill)
-  { top: "45%", left: undefined, right: "7%", bottom: undefined, rotation: 5, size: "w-[76px] h-[76px] md:w-[220px] md:h-[220px]" },
-
-  // Faixa Superior (Top area)
-  { top: "1%", left: "24%", right: undefined, bottom: undefined, rotation: -9, size: "w-[72px] h-[72px] md:w-[200px] md:h-[200px]" },
-  { top: "2%", left: "46%", right: undefined, bottom: undefined, rotation: 4, size: "w-[80px] h-[80px] md:w-[220px] md:h-[220px]" },
-  { top: "1%", left: "68%", right: undefined, bottom: undefined, rotation: -6, size: "w-[72px] h-[72px] md:w-[200px] md:h-[200px]" },
-
-  // Faixa Inferior (Bottom area)
-  { top: undefined, left: "24%", right: undefined, bottom: "1%", rotation: 14, size: "w-[72px] h-[72px] md:w-[200px] md:h-[200px]" },
-  { top: undefined, left: "46%", right: undefined, bottom: "2%", rotation: -8, size: "w-[80px] h-[80px] md:w-[220px] md:h-[220px]" },
-  { top: undefined, left: "68%", right: undefined, bottom: "1%", rotation: 11, size: "w-[72px] h-[72px] md:w-[200px] md:h-[200px]" },
+  // 6. Faixa Inferior (3 items)
+  { top: undefined, left: "25%", right: undefined, bottom: "1%", rotation: 14, size: "w-[108px] h-[108px] md:w-[300px] md:h-[300px]" },
+  { top: undefined, left: "46%", right: undefined, bottom: "2%", rotation: -8, size: "w-[120px] h-[120px] md:w-[330px] md:h-[330px]" },
+  { top: undefined, left: "67%", right: undefined, bottom: "1%", rotation: 11, size: "w-[108px] h-[108px] md:w-[300px] md:h-[300px]" },
 ];
 
 function FloatingPhotosBackground() {
