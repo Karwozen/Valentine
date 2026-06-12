@@ -6,6 +6,7 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Heart, LockKeyhole, LockOpen, Sparkles, AlertCircle, ArrowRight } from 'lucide-react';
+import confetti from 'canvas-confetti';
 
 type ScreenState = 'login' | 'quiz' | 'reveal';
 
@@ -92,40 +93,49 @@ function getDirectImageUrl(link: string): string {
   return link;
 }
 
-const PHOTOS = DRIVE_LINKS.map(getDirectImageUrl);
+// 20 Caminhos de arquivos locais (de '/foto1.jpg' até '/foto20.jpg')
+const USER_PHOTOS = Array.from({ length: 20 }, (_, i) => `/foto${i + 1}.jpg`);
+const PHOTOS = USER_PHOTOS;
 
+// 20 posições descentralizadas para cobrir a tela sem invadir o centro
 const PHOTO_POSITIONS = [
-  // 1. Left Column Outer
-  { top: "2%", left: "1%", right: undefined, bottom: undefined, rotation: -8, size: "w-[80px] h-[80px] md:w-[320px] md:h-[320px]" },
-  { top: "26%", left: "2%", right: undefined, bottom: undefined, rotation: 10, size: "w-[88px] h-[88px] md:w-[352px] md:h-[352px]" },
-  { top: "52%", left: "1%", right: undefined, bottom: undefined, rotation: -12, size: "w-[80px] h-[80px] md:w-[320px] md:h-[320px]" },
-  { top: "76%", left: "3%", right: undefined, bottom: undefined, rotation: 6, size: "w-[88px] h-[88px] md:w-[352px] md:h-[352px]" },
+  // Coluna Esquerda Externa (Left column outer)
+  { top: "2%", left: "1%", right: undefined, bottom: undefined, rotation: -8, size: "w-[80px] h-[80px] md:w-[240px] md:h-[240px]" },
+  { top: "26%", left: "2%", right: undefined, bottom: undefined, rotation: 10, size: "w-[88px] h-[88px] md:w-[260px] md:h-[260px]" },
+  { top: "51%", left: "1%", right: undefined, bottom: undefined, rotation: -12, size: "w-[80px] h-[80px] md:w-[240px] md:h-[240px]" },
+  { top: "76%", left: "3%", right: undefined, bottom: undefined, rotation: 6, size: "w-[88px] h-[88px] md:w-[260px] md:h-[260px]" },
 
-  // 2. Left Column Inner
-  { top: "14%", left: "16%", right: undefined, bottom: undefined, rotation: -4, size: "w-[72px] h-[72px] md:w-[288px] md:h-[288px]" },
-  { top: "38%", left: "15%", right: undefined, bottom: undefined, rotation: 8, size: "w-[72px] h-[72px] md:w-[288px] md:h-[288px]" },
-  { top: "64%", left: "16%", right: undefined, bottom: undefined, rotation: -15, size: "w-[80px] h-[80px] md:w-[320px] md:h-[320px]" },
+  // Coluna Esquerda Interna (Left column inner)
+  { top: "14%", left: "12%", right: undefined, bottom: undefined, rotation: -4, size: "w-[72px] h-[72px] md:w-[210px] md:h-[210px]" },
+  { top: "38%", left: "13%", right: undefined, bottom: undefined, rotation: 8, size: "w-[72px] h-[72px] md:w-[210px] md:h-[210px]" },
+  { top: "64%", left: "12%", right: undefined, bottom: undefined, rotation: -15, size: "w-[80px] h-[80px] md:w-[230px] md:h-[230px]" },
 
-  // 3. Right Column Outer
-  { top: "2%", left: undefined, right: "1%", bottom: undefined, rotation: 12, size: "w-[80px] h-[80px] md:w-[320px] md:h-[320px]" },
-  { top: "26%", left: undefined, right: "2%", bottom: undefined, rotation: -8, size: "w-[88px] h-[88px] md:w-[352px] md:h-[352px]" },
-  { top: "52%", left: undefined, right: "1%", bottom: undefined, rotation: 15, size: "w-[80px] h-[80px] md:w-[320px] md:h-[320px]" },
-  { top: "76%", left: undefined, right: "3%", bottom: undefined, rotation: -6, size: "w-[88px] h-[88px] md:w-[352px] md:h-[352px]" },
+  // Lateral esquerda extra (Middle-left fill)
+  { top: "45%", left: "7%", right: undefined, bottom: undefined, rotation: -5, size: "w-[76px] h-[76px] md:w-[220px] md:h-[220px]" },
 
-  // 4. Right Column Inner
-  { top: "14%", left: undefined, right: "16%", bottom: undefined, rotation: 6, size: "w-[72px] h-[72px] md:w-[288px] md:h-[288px]" },
-  { top: "38%", left: undefined, right: "15%", bottom: undefined, rotation: -11, size: "w-[72px] h-[72px] md:w-[288px] md:h-[288px]" },
-  { top: "64%", left: undefined, right: "16%", bottom: undefined, rotation: 9, size: "w-[80px] h-[80px] md:w-[320px] md:h-[320px]" },
+  // Coluna Direita Externa (Right column outer)
+  { top: "2%", left: undefined, right: "1%", bottom: undefined, rotation: 12, size: "w-[80px] h-[80px] md:w-[240px] md:h-[240px]" },
+  { top: "26%", left: undefined, right: "2%", bottom: undefined, rotation: -8, size: "w-[88px] h-[88px] md:w-[260px] md:h-[260px]" },
+  { top: "51%", left: undefined, right: "1%", bottom: undefined, rotation: 15, size: "w-[80px] h-[80px] md:w-[240px] md:h-[240px]" },
+  { top: "76%", left: undefined, right: "3%", bottom: undefined, rotation: -6, size: "w-[88px] h-[88px] md:w-[260px] md:h-[260px]" },
 
-  // 5. Top Strip Center
-  { top: "1%", left: "30%", right: undefined, bottom: undefined, rotation: -9, size: "w-[72px] h-[72px] md:w-[288px] md:h-[288px]" },
-  { top: "2%", left: "46%", right: undefined, bottom: undefined, rotation: 4, size: "w-[80px] h-[80px] md:w-[320px] md:h-[320px]" },
-  { top: "1%", left: "62%", right: undefined, bottom: undefined, rotation: -6, size: "w-[72px] h-[72px] md:w-[288px] md:h-[288px]" },
+  // Coluna Direita Interna (Right column inner)
+  { top: "14%", left: undefined, right: "12%", bottom: undefined, rotation: 6, size: "w-[72px] h-[72px] md:w-[210px] md:h-[210px]" },
+  { top: "38%", left: undefined, right: "13%", bottom: undefined, rotation: -11, size: "w-[72px] h-[72px] md:w-[210px] md:h-[210px]" },
+  { top: "64%", left: undefined, right: "12%", bottom: undefined, rotation: 9, size: "w-[80px] h-[80px] md:w-[230px] md:h-[230px]" },
 
-  // 6. Bottom Strip Center
-  { top: undefined, left: "30%", right: undefined, bottom: "1%", rotation: 14, size: "w-[72px] h-[72px] md:w-[288px] md:h-[288px]" },
-  { top: undefined, left: "46%", right: undefined, bottom: "2%", rotation: -8, size: "w-[80px] h-[80px] md:w-[320px] md:h-[320px]" },
-  { top: undefined, left: "62%", right: undefined, bottom: "1%", rotation: 11, size: "w-[72px] h-[72px] md:w-[288px] md:h-[288px]" },
+  // Lateral direita extra (Middle-right fill)
+  { top: "45%", left: undefined, right: "7%", bottom: undefined, rotation: 5, size: "w-[76px] h-[76px] md:w-[220px] md:h-[220px]" },
+
+  // Faixa Superior (Top area)
+  { top: "1%", left: "24%", right: undefined, bottom: undefined, rotation: -9, size: "w-[72px] h-[72px] md:w-[200px] md:h-[200px]" },
+  { top: "2%", left: "46%", right: undefined, bottom: undefined, rotation: 4, size: "w-[80px] h-[80px] md:w-[220px] md:h-[220px]" },
+  { top: "1%", left: "68%", right: undefined, bottom: undefined, rotation: -6, size: "w-[72px] h-[72px] md:w-[200px] md:h-[200px]" },
+
+  // Faixa Inferior (Bottom area)
+  { top: undefined, left: "24%", right: undefined, bottom: "1%", rotation: 14, size: "w-[72px] h-[72px] md:w-[200px] md:h-[200px]" },
+  { top: undefined, left: "46%", right: undefined, bottom: "2%", rotation: -8, size: "w-[80px] h-[80px] md:w-[220px] md:h-[220px]" },
+  { top: undefined, left: "68%", right: undefined, bottom: "1%", rotation: 11, size: "w-[72px] h-[72px] md:w-[200px] md:h-[200px]" },
 ];
 
 function FloatingPhotosBackground() {
@@ -133,7 +143,7 @@ function FloatingPhotosBackground() {
     return PHOTOS.map((url, i) => {
       const pos = PHOTO_POSITIONS[i % PHOTO_POSITIONS.length];
       const floatDuration = 4 + Math.random() * 6; // 4s to 10s
-      const floatDelay = Math.random() * 5;
+      const floatDelay = Math.random() * -10; // negative delay so they are pre-arranged and already floating
       const floatY = 15 + Math.random() * 15; // 15px to 30px float distance
       const rotationWobble = Math.random() * 4 - 2;
 
@@ -153,26 +163,56 @@ function FloatingPhotosBackground() {
       {animatedPhotos.map((photo, i) => (
         <motion.div
           key={i}
-          className={`absolute ${photo.pos.size} p-1.5 md:p-4 bg-white rounded-xl md:rounded-3xl shadow-[0_8px_20px_rgba(0,0,0,0.12)] md:shadow-[0_24px_50px_rgba(0,0,0,0.15)] border border-slate-100/50 opacity-55 md:opacity-75`}
+          className={`absolute ${photo.pos.size} p-1.5 md:p-3 bg-white rounded-xl md:rounded-3xl shadow-[0_8px_20px_rgba(0,0,0,0.12)] md:shadow-[0_24px_50px_rgba(0,0,0,0.15)] border border-slate-100/50 opacity-60 md:opacity-80 pointer-events-auto cursor-pointer flex items-center justify-center`}
           style={{ 
             top: photo.pos.top, 
             left: photo.pos.left, 
             right: photo.pos.right, 
             bottom: photo.pos.bottom,
+            zIndex: 1
           }}
           initial={{ y: 0, rotate: photo.pos.rotation }}
           animate={{ 
             y: [-photo.floatY, photo.floatY, -photo.floatY],
             rotate: [photo.pos.rotation, photo.pos.rotation + photo.rotationWobble, photo.pos.rotation] 
           }}
+          whileHover={{
+            scale: 1.25,
+            zIndex: 50,
+            rotate: 0,
+            y: 0,
+            opacity: 1,
+            transition: { duration: 0.25, ease: "easeOut" }
+          }}
+          whileTap={{
+            scale: 1.25,
+            zIndex: 50,
+            rotate: 0,
+            y: 0,
+            opacity: 1,
+            transition: { duration: 0.25, ease: "easeOut" }
+          }}
           transition={{
-            duration: photo.floatDuration,
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: photo.floatDelay
+            y: {
+              duration: photo.floatDuration,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: photo.floatDelay
+            },
+            rotate: {
+              duration: photo.floatDuration,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: photo.floatDelay
+            }
           }}
         >
-          <img src={photo.url} alt={`Memory ${i}`} className="w-full h-full object-cover rounded-lg md:rounded-2xl" />
+          <img 
+            src={photo.url} 
+            alt={`Memory ${i + 1}`} 
+            className="w-full h-full object-cover rounded-lg md:rounded-2xl" 
+            referrerPolicy="no-referrer"
+          />
         </motion.div>
       ))}
     </div>
@@ -196,15 +236,14 @@ function FloatingHearts() {
       'text-pink-300/45', 'text-red-200/40', 'text-red-300/40',
       'text-rose-400/30', 'text-pink-400/30'
     ];
-    // Create 45 hearts for a full, lush background
     const newHearts = Array.from({ length: 45 }).map((_, i) => ({
       id: i,
       left: Math.random() * 100,
       scale: 0.4 + Math.random() * 0.8,
-      duration: 12 + Math.random() * 14, // slow, dreamy float up
-      delay: Math.random() * -20, // negative delay so they are pre-filled on load!
+      duration: 12 + Math.random() * 14, 
+      delay: Math.random() * -20, 
       color: colors[Math.floor(Math.random() * colors.length)],
-      size: 12 + Math.floor(Math.random() * 24), // 12px to 36px
+      size: 12 + Math.floor(Math.random() * 24), 
     }));
     setHearts(newHearts);
   }, []);
@@ -221,8 +260,8 @@ function FloatingHearts() {
           initial={{ y: '105vh', scale: heart.scale, opacity: 0 }}
           animate={{
             y: '-10vh',
-            x: [0, 40, -40, 0], // beautiful side swaying
-            opacity: [0, 0.7, 0.7, 0] // smooth fade in and fade out
+            x: [0, 40, -40, 0], 
+            opacity: [0, 0.7, 0.7, 0] 
           }}
           transition={{
             duration: heart.duration,
@@ -246,7 +285,7 @@ function CursorHearts() {
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       const now = Date.now();
-      if (now - lastTime.current < 80) return; // throttle to ~80ms 
+      if (now - lastTime.current < 80) return; 
       lastTime.current = now;
 
       const newHeart = { id: nextId.current++, x: e.clientX, y: e.clientY };
@@ -296,9 +335,53 @@ export default function App() {
   const [allCorrectMarked, setAllCorrectMarked] = useState(false);
   const [showAllCorrectModal, setShowAllCorrectModal] = useState(false);
 
+  // Explosão abundante e realista de confetes na Revelação Final
+  useEffect(() => {
+    if (screen === 'reveal') {
+      // Grande estouro inicial de corações/rosa/pink confetes no centro
+      confetti({
+        particleCount: 160,
+        spread: 100,
+        origin: { y: 0.55 },
+        colors: ['#ff719a', '#ec4899', '#f43f5e', '#ff4d6d', '#ffb3c1', '#fff0f3']
+      });
+
+      // Disparos contínuos e alternados das laterais por 5 segundos
+      const duration = 5 * 1000;
+      const animationEnd = Date.now() + duration;
+      const defaults = { startVelocity: 35, spread: 360, ticks: 70, zIndex: 100 };
+
+      const randomInRange = (min: number, max: number) => {
+        return Math.random() * (max - min) + min;
+      };
+
+      const interval: any = setInterval(() => {
+        const timeLeft = animationEnd - Date.now();
+
+        if (timeLeft <= 0) {
+          return clearInterval(interval);
+        }
+
+        const particleCount = 45 * (timeLeft / duration);
+        confetti({
+          ...defaults,
+          particleCount,
+          origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 }
+        });
+        confetti({
+          ...defaults,
+          particleCount,
+          origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 }
+        });
+      }, 250);
+
+      return () => clearInterval(interval);
+    }
+  }, [screen]);
+
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    const cleanPass = password.replace(/\D/g, ''); // Remove formatting if any
+    const cleanPass = password.replace(/\D/g, ''); 
     if (password === '04/03/2023' || cleanPass === '04032023') {
       setScreen('quiz');
       setLoginError(false);
@@ -345,7 +428,8 @@ export default function App() {
       <div className="absolute bottom-[-50px] left-[-50px] w-64 h-64 bg-pink-100 rounded-full blur-[60px] opacity-50"></div>
       
       <FloatingPhotosBackground />
-      <FloatingHearts />
+      {/* Remove backgroud hearts on final screen to let confetti shine beautifully */}
+      {screen !== 'reveal' && <FloatingHearts />}
       <CursorHearts />
       
       {/* Hidden music player with native iframe autoplay bypass */}
@@ -399,13 +483,17 @@ export default function App() {
                   </motion.p>
                 )}
               </AnimatePresence>
-              <button
+              <motion.button
                 type="submit"
-                className="w-full bg-gradient-to-r from-rose-500 to-pink-600 text-white font-bold py-4 md:py-5 rounded-xl md:rounded-2xl shadow-xl shadow-rose-200 transform hover:scale-[1.01] md:hover:scale-[1.02] transition-all flex justify-center items-center gap-2 text-lg md:text-xl"
+                animate={{ scale: [1, 1.03, 1] }}
+                transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.98 }}
+                className="w-full bg-gradient-to-r from-rose-500 to-pink-600 text-white font-bold py-4 md:py-5 rounded-xl md:rounded-2xl shadow-xl shadow-rose-200 flex justify-center items-center gap-2 text-lg md:text-xl cursor-pointer"
               >
                 <span>Desbloquear</span>
                 <LockOpen size={18} />
-              </button>
+              </motion.button>
             </form>
           </motion.div>
         )}
@@ -418,8 +506,9 @@ export default function App() {
             exit={{ opacity: 0, scale: 1.05 }}
             className="w-full max-w-[600px] bg-white/70 backdrop-blur-xl border border-white/50 shadow-[0_32px_64px_-16px_rgba(255,182,193,0.4)] rounded-[32px] md:rounded-[48px] z-10 overflow-hidden flex flex-col"
           >
-            <div className="px-6 md:px-10 pt-6 md:pt-10 pb-4 md:pb-6 w-full flex flex-col items-center">
-              <div className="w-full flex flex-col sm:flex-row justify-between items-center gap-4 mb-4 md:mb-8">
+            {/* Header / Progresso - Estático para que não deslize de forma redundante */}
+            <div className="px-6 md:px-10 pt-6 md:pt-10 pb-0 w-full flex flex-col items-center">
+              <div className="w-full flex flex-col sm:flex-row justify-between items-center gap-4 mb-4 md:mb-6">
                 <div className="flex space-x-1.5 w-full sm:w-auto flex-1">
                   {QUESTIONS.map((_, idx) => (
                     <div key={idx} className={`h-1.5 rounded-full flex-1 sm:w-6 ${idx <= currentQuestionIdx ? 'bg-rose-500' : 'bg-rose-200'}`}></div>
@@ -429,54 +518,72 @@ export default function App() {
                   Pergunta {currentQuestionIdx + 1}/{QUESTIONS.length}
                 </span>
               </div>
-              <div className="text-xl md:text-2xl font-extrabold text-slate-800 leading-snug tracking-tight text-center">
-                {QUESTIONS[currentQuestionIdx].question}
-              </div>
             </div>
 
-            <div className="px-6 md:px-10 pb-6 md:pb-10 space-y-3 md:space-y-4">
-              {QUESTIONS[currentQuestionIdx].options.map((option, idx) => {
-                const q = QUESTIONS[currentQuestionIdx];
-                const isSelected = selectedOption === option;
-                const isCorrect = allCorrectMarked || (isSelected && option === q.answer);
-                const isWrong = !allCorrectMarked && isSelected && option !== q.answer;
-
-                return (
-                  <button
-                    key={idx}
-                    onClick={() => handleAnswer(option)}
-                    className={`w-full p-4 md:p-5 rounded-xl md:rounded-2xl text-left transition-all border-2 shadow-sm transform hover:scale-[1.01] flex items-center justify-between ${
-                      isCorrect
-                        ? 'border-green-400 bg-green-50 text-green-700'
-                        : isWrong
-                        ? 'border-rose-400 bg-rose-50 text-rose-700'
-                        : 'border-white bg-white/50 hover:bg-white text-slate-700 hover:shadow-md'
-                    }`}
-                  >
-                    <span className="font-bold text-base md:text-lg">{option}</span>
-                    {isCorrect && (
-                      <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }}>
-                        <Heart className="text-green-500" fill="currentColor" size={20} />
-                      </motion.div>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-
-            <AnimatePresence>
-              {hint && !allCorrectMarked && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10, height: 0 }}
-                  animate={{ opacity: 1, y: 0, height: 'auto' }}
-                  exit={{ opacity: 0, height: 0 }}
-                  className="px-6 pb-6 text-center"
-                >
-                  <div className="bg-rose-50 text-rose-600 px-5 py-4 rounded-xl md:rounded-2xl text-xs md:text-sm font-bold border border-rose-100 mb-2">
-                    {hint}
+            {/* Transições Deslizantes do Bloco da Pergunta e Opções */}
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={currentQuestionIdx}
+                initial={{ x: 50, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                exit={{ x: -50, opacity: 0 }}
+                transition={{ duration: 0.35, ease: "easeInOut" }}
+                className="w-full flex flex-col"
+              >
+                {/* Pergunta */}
+                <div className="px-6 md:px-10 pb-4 md:pb-6 w-full flex flex-col items-center">
+                  <div className="text-xl md:text-2xl font-extrabold text-slate-800 leading-snug tracking-tight text-center">
+                    {QUESTIONS[currentQuestionIdx].question}
                   </div>
-                </motion.div>
-              )}
+                </div>
+
+                {/* Opções */}
+                <div className="px-6 md:px-10 pb-6 md:pb-10 space-y-3 md:space-y-4">
+                  {QUESTIONS[currentQuestionIdx].options.map((option, idx) => {
+                    const q = QUESTIONS[currentQuestionIdx];
+                    const isSelected = selectedOption === option;
+                    const isCorrect = allCorrectMarked || (isSelected && option === q.answer);
+                    const isWrong = !allCorrectMarked && isSelected && option !== q.answer;
+
+                    return (
+                      <button
+                        key={idx}
+                        onClick={() => handleAnswer(option)}
+                        className={`w-full p-4 md:p-5 rounded-xl md:rounded-2xl text-left transition-all border-2 shadow-sm transform hover:scale-[1.01] flex items-center justify-between ${
+                          isCorrect
+                            ? 'border-green-400 bg-green-50 text-green-700'
+                            : isWrong
+                            ? 'border-rose-400 bg-rose-50 text-rose-700'
+                            : 'border-white bg-white/50 hover:bg-white text-slate-700 hover:shadow-md'
+                        }`}
+                      >
+                        <span className="font-bold text-base md:text-lg">{option}</span>
+                        {isCorrect && (
+                          <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }}>
+                            <Heart className="text-green-500" fill="currentColor" size={20} />
+                          </motion.div>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Dica */}
+                <AnimatePresence>
+                  {hint && !allCorrectMarked && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10, height: 0 }}
+                      animate={{ opacity: 1, y: 0, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="px-6 pb-6 text-center"
+                    >
+                      <div className="bg-rose-50 text-rose-600 px-5 py-4 rounded-xl md:rounded-2xl text-xs md:text-sm font-bold border border-rose-100 mb-2">
+                        {hint}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
             </AnimatePresence>
 
             <AnimatePresence>
