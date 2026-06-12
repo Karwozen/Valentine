@@ -328,25 +328,27 @@ export default function App() {
   const [allCorrectMarked, setAllCorrectMarked] = useState(false);
   const [showAllCorrectModal, setShowAllCorrectModal] = useState(false);
 
-  // Canal do vídeo ativo para crossfade sem intervalos (A ou B)
+  // Canal do vídeo ativo para crossfade sem intervalos (A ou B) com chaves de recarregamento limpas
   const [activeChannel, setActiveChannel] = useState<'A' | 'B'>('A');
-  const [srcA, setSrcA] = useState("https://drive.google.com/file/d/1Gc5WcbyraJCL6Bdod4lcQMh8jbOKFqrN/preview?autoplay=1&mute=1&controls=0");
-  const [srcB, setSrcB] = useState("");
+  const [keyA, setKeyA] = useState(0);
+  const [keyB, setKeyB] = useState(0);
 
+  // Loop de vídeo infinito com crossfade de 2 canais (A e B) sem parâmetros extras para evitar 400 Bad Request
   useEffect(() => {
     let timeLeft = 15;
     const interval = setInterval(() => {
       timeLeft -= 1;
-      if (timeLeft === 2) {
-        // Prepara e carrega o próximo canal em background 2 segundos antes para carregar e começar a reproduzir sem travar
-        const nextChannel = activeChannel === 'A' ? 'B' : 'A';
-        const freshUrl = `https://drive.google.com/file/d/1Gc5WcbyraJCL6Bdod4lcQMh8jbOKFqrN/preview?autoplay=1&mute=1&controls=0&t=${Date.now()}`;
-        if (nextChannel === 'A') {
-          setSrcA(freshUrl);
+      
+      // 3 segundos antes do término do vídeo de 15s, recarregamos o outro canal em background
+      if (timeLeft === 3) {
+        if (activeChannel === 'A') {
+          setKeyB(prev => prev + 1);
         } else {
-          setSrcB(freshUrl);
+          setKeyA(prev => prev + 1);
         }
       }
+      
+      // Quando chega a 0, alternamos o canal ativo e reiniciamos
       if (timeLeft <= 0) {
         setActiveChannel(prev => prev === 'A' ? 'B' : 'A');
         timeLeft = 15;
@@ -449,26 +451,26 @@ export default function App() {
       <div className="fixed inset-0 w-full h-full overflow-hidden pointer-events-none z-0">
         {/* Canal A */}
         <motion.iframe
+          key={`video-canal-A-${keyA}`}
           animate={{ opacity: activeChannel === 'A' ? 0.50 : 0 }}
-          transition={{ duration: 2.5, ease: "easeInOut" }}
-          src={srcA}
+          transition={{ duration: 2.0, ease: "easeInOut" }}
+          src="https://drive.google.com/file/d/1Gc5WcbyraJCL6Bdod4lcQMh8jbOKFqrN/preview?autoplay=1&mute=1&controls=0"
           className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[140%] h-[140%] min-w-full min-h-full border-none pointer-events-none"
           allow="autoplay; encrypted-media"
           title="Background Video A"
           style={{ filter: 'blur(12px)' }}
         />
         {/* Canal B */}
-        {srcB && (
-          <motion.iframe
-            animate={{ opacity: activeChannel === 'B' ? 0.50 : 0 }}
-            transition={{ duration: 2.5, ease: "easeInOut" }}
-            src={srcB}
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[140%] h-[140%] min-w-full min-h-full border-none pointer-events-none"
-            allow="autoplay; encrypted-media"
-            title="Background Video B"
-            style={{ filter: 'blur(12px)' }}
-          />
-        )}
+        <motion.iframe
+          key={`video-canal-B-${keyB}`}
+          animate={{ opacity: activeChannel === 'B' ? 0.50 : 0 }}
+          transition={{ duration: 2.0, ease: "easeInOut" }}
+          src="https://drive.google.com/file/d/1Gc5WcbyraJCL6Bdod4lcQMh8jbOKFqrN/preview?autoplay=1&mute=1&controls=0"
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[140%] h-[140%] min-w-full min-h-full border-none pointer-events-none"
+          allow="autoplay; encrypted-media"
+          title="Background Video B"
+          style={{ filter: 'blur(12px)' }}
+        />
         <div className="absolute inset-0 bg-[#FFF5F7]/50 pointer-events-none" />
       </div>
 
