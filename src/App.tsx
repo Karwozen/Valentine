@@ -3,47 +3,211 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Heart, LockKeyhole, LockOpen, Sparkles, AlertCircle, ArrowRight } from 'lucide-react';
+import ReactPlayer from 'react-player';
+
+const Player = ReactPlayer as any;
 
 type ScreenState = 'login' | 'quiz' | 'reveal';
 
-const QUESTIONS = [
+type Question = {
+  question: string;
+  options: string[];
+  answer?: string;
+  allCorrect?: boolean;
+  getHint?: (option: string) => string;
+};
+
+const QUESTIONS: Question[] = [
   {
     question: "Onde os nossos olhares se cruzaram pela primeira vez?",
     options: ["No shopping", "Na academia", "Na faculdade"],
     answer: "Na academia",
-    hint: "Ah amor, foca no shape! Lembra que foi no meio dos pesos e aparelhos?"
+    getHint: () => "Ah amor, foca no shape! Lembra que foi no meio dos pesos e aparelhos?"
   },
   {
     question: "Para qual país nós sonhamos em nos mudar e construir nossa vida?",
     options: ["Estados Unidos", "Austrália", "Canadá"],
     answer: "Canadá",
-    hint: "Ah, amor, lembra que é um lugar bem frio, cheio de neve e folhinhas de plátano (maple)!"
+    getHint: () => "Ah, amor, lembra que é um lugar bem frio, cheio de neve e folhinhas de plátano (maple)!"
   },
   {
     question: "Onde vamos passar a nossa tão sonhada lua de mel?",
     options: ["Em um resort no Nordeste", "Em um cruzeiro transatlântico", "Viajando pela Europa de trem"],
     answer: "Em um cruzeiro transatlântico",
-    hint: "Prepara o enjoo! Vamos passar vários dias no meio do oceano aproveitando muito luxo!"
+    getHint: () => "Prepara o enjoo! Vamos passar vários dias no meio do oceano aproveitando muito luxo!"
   },
   {
     question: "Qual é a nossa série favorita para assistir juntos?",
     options: ["Breaking Bad", "Game of Thrones", "Naruto"],
     answer: "Naruto",
-    hint: "Tô certo! Dattebayo! Pensa em ninjas e vilas ocultas!"
+    getHint: () => "Tô certo! Dattebayo! Pensa em ninjas e vilas ocultas!"
+  },
+  {
+    question: "Qual nosso maior sonho atual?",
+    options: ["Morar fora do país", "Ter uma casa", "Casar"],
+    answer: "Casar",
+    getHint: () => "Esses também são, mas qual é o principal agora que estamos planejando?"
+  },
+  {
+    question: "Quando pretendemos nos casar?",
+    options: ["2027", "2028", "2030"],
+    answer: "2028",
+    getHint: (option) => option === "2030" ? "Amor, estamos se referindo ao plano A original rsrsrs" : "Abaixo de 2030, amor! Logo logo <3"
+  },
+  {
+    question: "O que mais gostamos de comer?",
+    options: ["Churrasco", "Sushi", "Chocolate"],
+    allCorrect: true
   }
 ];
 
+const DRIVE_LINKS = [
+  "https://drive.google.com/file/d/16CQEtHEbwWzZm9BbmOhRg5XRnSQq48W6/view?usp=sharing",
+  "https://drive.google.com/file/d/19VmCM4KqvvWdWr4MBWyNRBUFRUws3a0G/view?usp=sharing",
+  "https://drive.google.com/file/d/1Dvie4x0Gw-wYSIkW0rZfljCwTaGbkucJ/view?usp=sharing",
+  "https://drive.google.com/file/d/1FErh7kc95e-8brxK7LIAHJAf58niPwTj/view?usp=sharing",
+  "https://drive.google.com/file/d/1H84d271z49jIf3bXqKwc3QpvjTJiJ7RM/view?usp=sharing",
+  "https://drive.google.com/file/d/1MWykPIDKFXwAV4Vhz8s9_egivxv2WXFJ/view?usp=sharing",
+  "https://drive.google.com/file/d/1OzW6hWwnWE6QVOoJ3UImt4glKRNeSpw5/view?usp=sharing",
+  "https://drive.google.com/file/d/1RoOXUR3DEny-FOH2mBrpXZT9tlzW2bW3/view?usp=sharing",
+  "https://drive.google.com/file/d/1SrKmPDRBUYUaMxnrimcV-KbNLxmULyL0/view?usp=sharing",
+  "https://drive.google.com/file/d/1TES8vkBxcwbPE8HIqisJRrDCuWPdT_yX/view?usp=sharing",
+  "https://drive.google.com/file/d/1TIOqf1Zyw85B7sZAyetHilEkcV8nPCo0/view?usp=sharing",
+  "https://drive.google.com/file/d/1VFu8XgNz84MtM7XsmjdiSyE3AaUQBou4/view?usp=sharing",
+  "https://drive.google.com/file/d/1Zq-6aBYewIuWo9Xv8aauzzCyT6S04xJn/view?usp=sharing",
+  "https://drive.google.com/file/d/1_s5wBQKUxduYFMPoK6N4S-s9wBcXUvn1/view?usp=sharing",
+  "https://drive.google.com/file/d/1gokImzyUR7n78P9LZiA4tBEnbzJpvJK-/view?usp=sharing",
+  "https://drive.google.com/file/d/1iFL1F_tPeZGJTon0MVneporfdzgnHHSu/view?usp=sharing",
+  "https://drive.google.com/file/d/1png18ENwi0oYTmqyNeadCGDX_EfiDM8-/view?usp=sharing",
+  "https://drive.google.com/file/d/1sneYeOQvBKuCJ28LJdq_Fu_KK_GPAbI2/view?usp=sharing",
+  "https://drive.google.com/file/d/1vhHkelA_CTalwPiuxgHQde7jHAHo7l8x/view?usp=sharing",
+  "https://drive.google.com/file/d/1z909e7Mt9p5XT1lwc-fh-IPT2e5wa9pU/view?usp=sharing"
+];
+
+function getDirectImageUrl(link: string): string {
+  const match = link.match(/\/d\/([a-zA-Z0-9_-]+)/);
+  if (match && match[1]) {
+    return `https://lh3.googleusercontent.com/d/${match[1]}`;
+  }
+  return link;
+}
+
+const PHOTOS = DRIVE_LINKS.map(getDirectImageUrl);
+
+const PHOTO_POSITIONS = [
+  // 1. Left Column Outer
+  { top: "2%", left: "1%", right: undefined, bottom: undefined, rotation: -8, size: "w-[192px] h-[192px] md:w-[320px] md:h-[320px]" },
+  { top: "26%", left: "2%", right: undefined, bottom: undefined, rotation: 10, size: "w-[224px] h-[224px] md:w-[352px] md:h-[352px]" },
+  { top: "52%", left: "1%", right: undefined, bottom: undefined, rotation: -12, size: "w-[192px] h-[192px] md:w-[320px] md:h-[320px]" },
+  { top: "76%", left: "3%", right: undefined, bottom: undefined, rotation: 6, size: "w-[224px] h-[224px] md:w-[352px] md:h-[352px]" },
+
+  // 2. Left Column Inner
+  { top: "14%", left: "16%", right: undefined, bottom: undefined, rotation: -4, size: "w-[160px] h-[160px] md:w-[288px] md:h-[288px]" },
+  { top: "38%", left: "15%", right: undefined, bottom: undefined, rotation: 8, size: "w-[160px] h-[160px] md:w-[288px] md:h-[288px]" },
+  { top: "64%", left: "16%", right: undefined, bottom: undefined, rotation: -15, size: "w-[192px] h-[192px] md:w-[320px] md:h-[320px]" },
+
+  // 3. Right Column Outer
+  { top: "2%", left: undefined, right: "1%", bottom: undefined, rotation: 12, size: "w-[192px] h-[192px] md:w-[320px] md:h-[320px]" },
+  { top: "26%", left: undefined, right: "2%", bottom: undefined, rotation: -8, size: "w-[224px] h-[224px] md:w-[352px] md:h-[352px]" },
+  { top: "52%", left: undefined, right: "1%", bottom: undefined, rotation: 15, size: "w-[192px] h-[192px] md:w-[320px] md:h-[320px]" },
+  { top: "76%", left: undefined, right: "3%", bottom: undefined, rotation: -6, size: "w-[224px] h-[224px] md:w-[352px] md:h-[352px]" },
+
+  // 4. Right Column Inner
+  { top: "14%", left: undefined, right: "16%", bottom: undefined, rotation: 6, size: "w-[160px] h-[160px] md:w-[288px] md:h-[288px]" },
+  { top: "38%", left: undefined, right: "15%", bottom: undefined, rotation: -11, size: "w-[160px] h-[160px] md:w-[288px] md:h-[288px]" },
+  { top: "64%", left: undefined, right: "16%", bottom: undefined, rotation: 9, size: "w-[192px] h-[192px] md:w-[320px] md:h-[320px]" },
+
+  // 5. Top Strip Center
+  { top: "1%", left: "30%", right: undefined, bottom: undefined, rotation: -9, size: "w-[160px] h-[160px] md:w-[288px] md:h-[288px]" },
+  { top: "2%", left: "46%", right: undefined, bottom: undefined, rotation: 4, size: "w-[192px] h-[192px] md:w-[320px] md:h-[320px]" },
+  { top: "1%", left: "62%", right: undefined, bottom: undefined, rotation: -6, size: "w-[160px] h-[160px] md:w-[288px] md:h-[288px]" },
+
+  // 6. Bottom Strip Center
+  { top: undefined, left: "30%", right: undefined, bottom: "1%", rotation: 14, size: "w-[160px] h-[160px] md:w-[288px] md:h-[288px]" },
+  { top: undefined, left: "46%", right: undefined, bottom: "2%", rotation: -8, size: "w-[192px] h-[192px] md:w-[320px] md:h-[320px]" },
+  { top: undefined, left: "62%", right: undefined, bottom: "1%", rotation: 11, size: "w-[160px] h-[160px] md:w-[288px] md:h-[288px]" },
+];
+
+function FloatingPhotosBackground() {
+  const animatedPhotos = useMemo(() => {
+    return PHOTOS.map((url, i) => {
+      const pos = PHOTO_POSITIONS[i % PHOTO_POSITIONS.length];
+      const floatDuration = 4 + Math.random() * 6; // 4s to 10s
+      const floatDelay = Math.random() * 5;
+      const floatY = 15 + Math.random() * 15; // 15px to 30px float distance
+      const rotationWobble = Math.random() * 4 - 2;
+
+      return {
+        url,
+        pos,
+        floatDuration,
+        floatDelay,
+        floatY,
+        rotationWobble
+      };
+    });
+  }, []);
+
+  return (
+    <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
+      {animatedPhotos.map((photo, i) => (
+        <motion.div
+          key={i}
+          className={`absolute ${photo.pos.size} p-4 bg-white rounded-3xl shadow-[0_24px_50px_rgba(0,0,0,0.15)] border border-slate-100/50 opacity-55 md:opacity-75`}
+          style={{ 
+            top: photo.pos.top, 
+            left: photo.pos.left, 
+            right: photo.pos.right, 
+            bottom: photo.pos.bottom,
+          }}
+          initial={{ y: 0, rotate: photo.pos.rotation }}
+          animate={{ 
+            y: [-photo.floatY, photo.floatY, -photo.floatY],
+            rotate: [photo.pos.rotation, photo.pos.rotation + photo.rotationWobble, photo.pos.rotation] 
+          }}
+          transition={{
+            duration: photo.floatDuration,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: photo.floatDelay
+          }}
+        >
+          <img src={photo.url} alt={`Memory ${i}`} className="w-full h-full object-cover rounded-2xl" />
+        </motion.div>
+      ))}
+    </div>
+  );
+}
+
 function FloatingHearts() {
-  const [hearts, setHearts] = useState<{ id: number; left: number; animationDuration: number }[]>([]);
+  const [hearts, setHearts] = useState<{ 
+    id: number; 
+    left: number; 
+    scale: number; 
+    duration: number; 
+    delay: number; 
+    color: string;
+    size: number;
+  }[]>([]);
 
   useEffect(() => {
-    const newHearts = Array.from({ length: 30 }).map((_, i) => ({
+    const colors = [
+      'text-rose-200/40', 'text-pink-200/40', 'text-rose-300/45', 
+      'text-pink-300/45', 'text-red-200/40', 'text-red-300/40',
+      'text-rose-400/30', 'text-pink-400/30'
+    ];
+    // Create 45 hearts for a full, lush background
+    const newHearts = Array.from({ length: 45 }).map((_, i) => ({
       id: i,
       left: Math.random() * 100,
-      animationDuration: 3 + Math.random() * 4,
+      scale: 0.4 + Math.random() * 0.8,
+      duration: 12 + Math.random() * 14, // slow, dreamy float up
+      delay: Math.random() * -20, // negative delay so they are pre-filled on load!
+      color: colors[Math.floor(Math.random() * colors.length)],
+      size: 12 + Math.floor(Math.random() * 24), // 12px to 36px
     }));
     setHearts(newHearts);
   }, []);
@@ -53,22 +217,69 @@ function FloatingHearts() {
       {hearts.map((heart) => (
         <motion.div
           key={heart.id}
-          className="absolute text-red-400 opacity-60"
-          initial={{ top: '-10%', left: `${heart.left}%`, scale: 0.5 + Math.random() }}
+          className={`absolute ${heart.color}`}
+          style={{
+            left: `${heart.left}%`,
+          }}
+          initial={{ y: '105vh', scale: heart.scale, opacity: 0 }}
           animate={{
-            top: '110%',
-            rotate: [0, 10, -10, 0],
+            y: '-10vh',
+            x: [0, 40, -40, 0], // beautiful side swaying
+            opacity: [0, 0.7, 0.7, 0] // smooth fade in and fade out
           }}
           transition={{
-            duration: heart.animationDuration,
+            duration: heart.duration,
             repeat: Infinity,
             ease: 'linear',
-            delay: Math.random() * 5,
+            delay: heart.delay,
           }}
         >
-          <Heart fill="currentColor" size={24} />
+          <Heart fill="currentColor" size={heart.size} />
         </motion.div>
       ))}
+    </div>
+  );
+}
+
+function CursorHearts() {
+  const [hearts, setHearts] = useState<{ id: number; x: number; y: number }[]>([]);
+  const nextId = useRef(0);
+  const lastTime = useRef(0);
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      const now = Date.now();
+      if (now - lastTime.current < 80) return; // throttle to ~80ms 
+      lastTime.current = now;
+
+      const newHeart = { id: nextId.current++, x: e.clientX, y: e.clientY };
+      setHearts(prev => [...prev, newHeart]);
+
+      setTimeout(() => {
+        setHearts(prev => prev.filter(h => h.id !== newHeart.id));
+      }, 1000);
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
+
+  return (
+    <div className="fixed inset-0 pointer-events-none z-[100] overflow-hidden">
+      <AnimatePresence>
+        {hearts.map(heart => (
+          <motion.div
+            key={heart.id}
+            initial={{ opacity: 1, x: heart.x - 8, y: heart.y - 8, scale: 0.5 }}
+            animate={{ opacity: 0, y: heart.y - 60, scale: 1.2 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 1, ease: 'easeOut' }}
+            className="absolute text-rose-500"
+          >
+            <Heart size={16} fill="currentColor" />
+          </motion.div>
+        ))}
+      </AnimatePresence>
     </div>
   );
 }
@@ -79,11 +290,14 @@ export default function App() {
   // Login State
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState(false);
+  const [hasInteracted, setHasInteracted] = useState(false);
   
   // Quiz State
   const [currentQuestionIdx, setCurrentQuestionIdx] = useState(0);
   const [hint, setHint] = useState<string | null>(null);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
+  const [allCorrectMarked, setAllCorrectMarked] = useState(false);
+  const [showAllCorrectModal, setShowAllCorrectModal] = useState(false);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -91,6 +305,7 @@ export default function App() {
     if (password === '04/03/2023' || cleanPass === '04032023') {
       setScreen('quiz');
       setLoginError(false);
+      setHasInteracted(true);
     } else {
       setLoginError(true);
       setTimeout(() => setLoginError(false), 2000);
@@ -101,6 +316,17 @@ export default function App() {
     setSelectedOption(option);
     const q = QUESTIONS[currentQuestionIdx];
     
+    if (q.allCorrect) {
+      setHint(null);
+      setAllCorrectMarked(true);
+      setShowAllCorrectModal(true);
+      setTimeout(() => {
+        setShowAllCorrectModal(false);
+        setScreen('reveal');
+      }, 3000);
+      return;
+    }
+
     if (option === q.answer) {
       setHint(null);
       setTimeout(() => {
@@ -112,7 +338,7 @@ export default function App() {
         }
       }, 1000);
     } else {
-      setHint(q.hint);
+      setHint(q.getHint ? q.getHint(option) : null);
     }
   };
 
@@ -120,6 +346,22 @@ export default function App() {
     <div className="min-h-screen bg-[#FFF5F7] flex flex-col items-center justify-center p-4 font-sans relative overflow-hidden">
       <div className="absolute top-[-100px] right-[-100px] w-80 h-80 bg-rose-100 rounded-full blur-[80px] opacity-60"></div>
       <div className="absolute bottom-[-50px] left-[-50px] w-64 h-64 bg-pink-100 rounded-full blur-[60px] opacity-50"></div>
+      
+      <FloatingPhotosBackground />
+      <FloatingHearts />
+      <CursorHearts />
+      
+      {/* Hidden music player */}
+      <Player 
+        url="https://www.youtube.com/watch?v=dPiQbEDWDG8" 
+        playing={hasInteracted} 
+        loop={true}
+        volume={0.5}
+        width="0" 
+        height="0" 
+        style={{ display: 'none' }}
+      />
+
       <AnimatePresence mode="wait">
         {screen === 'login' && (
           <motion.div
@@ -182,12 +424,12 @@ export default function App() {
           >
             <div className="px-10 pt-10 pb-6 w-full flex flex-col items-center">
               <div className="w-full flex justify-between items-center mb-8">
-                <div className="flex space-x-2">
+                <div className="flex space-x-1.5 flex-wrap">
                   {QUESTIONS.map((_, idx) => (
-                    <div key={idx} className={`w-8 h-1.5 rounded-full ${idx <= currentQuestionIdx ? 'bg-rose-500' : 'bg-rose-200'}`}></div>
+                    <div key={idx} className={`w-4 md:w-6 h-1.5 rounded-full ${idx <= currentQuestionIdx ? 'bg-rose-500' : 'bg-rose-200'}`}></div>
                   ))}
                 </div>
-                <span className="text-xs font-bold uppercase tracking-widest text-rose-400">
+                <span className="text-xs font-bold uppercase tracking-widest text-rose-400 shrink-0 ml-4">
                   Pergunta {currentQuestionIdx + 1}/{QUESTIONS.length}
                 </span>
               </div>
@@ -198,9 +440,10 @@ export default function App() {
 
             <div className="px-10 pb-10 space-y-4">
               {QUESTIONS[currentQuestionIdx].options.map((option, idx) => {
+                const q = QUESTIONS[currentQuestionIdx];
                 const isSelected = selectedOption === option;
-                const isCorrect = isSelected && option === QUESTIONS[currentQuestionIdx].answer;
-                const isWrong = isSelected && option !== QUESTIONS[currentQuestionIdx].answer;
+                const isCorrect = allCorrectMarked || (isSelected && option === q.answer);
+                const isWrong = !allCorrectMarked && isSelected && option !== q.answer;
 
                 return (
                   <button
@@ -226,7 +469,7 @@ export default function App() {
             </div>
 
             <AnimatePresence>
-              {hint && (
+              {hint && !allCorrectMarked && (
                 <motion.div
                   initial={{ opacity: 0, y: 10, height: 0 }}
                   animate={{ opacity: 1, y: 0, height: 'auto' }}
@@ -235,6 +478,31 @@ export default function App() {
                 >
                   <div className="bg-rose-50 text-rose-600 px-5 py-4 rounded-2xl text-sm font-bold border border-rose-100 mb-2">
                     {hint}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            <AnimatePresence>
+              {showAllCorrectModal && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9, y: -20 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.9, y: 10 }}
+                  className="absolute inset-0 z-50 flex items-center justify-center p-6 bg-white/40 backdrop-blur-sm rounded-[48px]"
+                >
+                  <div className="bg-white p-8 rounded-3xl shadow-2xl border border-rose-100 text-center max-w-sm">
+                    <motion.div
+                      animate={{ scale: [1, 1.2, 1] }}
+                      transition={{ repeat: Infinity, duration: 1.5 }}
+                      className="text-rose-500 flex justify-center mb-4"
+                    >
+                      <Heart size={48} fill="currentColor" />
+                    </motion.div>
+                    <h2 className="text-2xl font-extrabold text-slate-800 mb-2">Acertou!</h2>
+                    <p className="text-slate-600 font-medium">
+                      É, essa é uma pergunta difícil mesmo! Gostamos de comer de tudo juntos rsrsrs ❤️!
+                    </p>
                   </div>
                 </motion.div>
               )}
@@ -250,8 +518,6 @@ export default function App() {
             transition={{ duration: 0.8, ease: "easeOut" }}
             className="w-full max-w-[600px] z-10 bg-white/70 backdrop-blur-xl border border-white/50 shadow-[0_32px_64px_-16px_rgba(255,182,193,0.4)] rounded-[48px] p-12 flex flex-col items-center text-center"
           >
-            <FloatingHearts />
-            
             <div className="w-full flex justify-between items-center mb-8 relative z-10">
               <div className="flex space-x-2">
                 <div className="w-8 h-1.5 rounded-full bg-rose-500"></div>
@@ -287,10 +553,16 @@ export default function App() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.8, duration: 1 }}
-              className="relative z-10 mb-10 px-4"
+              className="relative z-10 mb-10 px-4 space-y-4"
             >
               <p className="text-lg text-slate-600 leading-relaxed">
-                Você acertou cada detalhe da nossa jornada! Da academia ao Canadá, do nosso anime favorito até o sonho do nosso cruzeiro. Isso só prova o quanto nossa conexão é única. Mal posso esperar para construir cada um desses sonhos ao seu lado.
+                Você acertou cada detalhe da nossa jornada! Da academia ao Canadá, do nosso anime favorito até o sonho do nosso cruzeiro. Só você conseguiria acertar todas as perguntas, pois nos conhecemos tão bem e dividimos todos os nossos sonhos juntos. Isso só prova o quanto a nossa conexão é única. Mal posso esperar para construir cada um desses sonhos ao seu lado.
+              </p>
+              <p className="text-lg text-slate-600 leading-relaxed">
+                Iremos conquistar todos eles, independente de qualquer dificuldade que apareça em nosso caminho, sempre com Deus como nosso guia e nosso pilar! Eu te amo mais do que qualquer coisa neste mundo. Quero sempre ser o meu lado bom contigo, sempre te fazer feliz para ver o seu sorriso que eu adoro e que me faz tão bem!
+              </p>
+              <p className="text-xl font-bold text-rose-600 pt-2">
+                Feliz Dia dos Namorados para a melhor namorada que eu poderia ter!!! Te amo, Letícia ❤️
               </p>
             </motion.div>
 
@@ -305,7 +577,6 @@ export default function App() {
                 className="w-full py-5 bg-gradient-to-r from-rose-500 to-pink-600 text-white rounded-2xl font-bold text-xl shadow-xl shadow-rose-200 transform hover:scale-[1.02] transition-all flex items-center justify-center gap-3"
               >
                 Feliz Dia dos Namorados!
-                <Heart fill="currentColor" size={24} />
               </button>
               
               <div className="flex items-center justify-center space-x-6 pt-4">
