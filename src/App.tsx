@@ -6,9 +6,6 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Heart, LockKeyhole, LockOpen, Sparkles, AlertCircle, ArrowRight } from 'lucide-react';
-import ReactPlayer from 'react-player';
-
-const Player = ReactPlayer as any;
 
 type ScreenState = 'login' | 'quiz' | 'reveal';
 
@@ -99,36 +96,36 @@ const PHOTOS = DRIVE_LINKS.map(getDirectImageUrl);
 
 const PHOTO_POSITIONS = [
   // 1. Left Column Outer
-  { top: "2%", left: "1%", right: undefined, bottom: undefined, rotation: -8, size: "w-[192px] h-[192px] md:w-[320px] md:h-[320px]" },
-  { top: "26%", left: "2%", right: undefined, bottom: undefined, rotation: 10, size: "w-[224px] h-[224px] md:w-[352px] md:h-[352px]" },
-  { top: "52%", left: "1%", right: undefined, bottom: undefined, rotation: -12, size: "w-[192px] h-[192px] md:w-[320px] md:h-[320px]" },
-  { top: "76%", left: "3%", right: undefined, bottom: undefined, rotation: 6, size: "w-[224px] h-[224px] md:w-[352px] md:h-[352px]" },
+  { top: "2%", left: "1%", right: undefined, bottom: undefined, rotation: -8, size: "w-[80px] h-[80px] md:w-[320px] md:h-[320px]" },
+  { top: "26%", left: "2%", right: undefined, bottom: undefined, rotation: 10, size: "w-[88px] h-[88px] md:w-[352px] md:h-[352px]" },
+  { top: "52%", left: "1%", right: undefined, bottom: undefined, rotation: -12, size: "w-[80px] h-[80px] md:w-[320px] md:h-[320px]" },
+  { top: "76%", left: "3%", right: undefined, bottom: undefined, rotation: 6, size: "w-[88px] h-[88px] md:w-[352px] md:h-[352px]" },
 
   // 2. Left Column Inner
-  { top: "14%", left: "16%", right: undefined, bottom: undefined, rotation: -4, size: "w-[160px] h-[160px] md:w-[288px] md:h-[288px]" },
-  { top: "38%", left: "15%", right: undefined, bottom: undefined, rotation: 8, size: "w-[160px] h-[160px] md:w-[288px] md:h-[288px]" },
-  { top: "64%", left: "16%", right: undefined, bottom: undefined, rotation: -15, size: "w-[192px] h-[192px] md:w-[320px] md:h-[320px]" },
+  { top: "14%", left: "16%", right: undefined, bottom: undefined, rotation: -4, size: "w-[72px] h-[72px] md:w-[288px] md:h-[288px]" },
+  { top: "38%", left: "15%", right: undefined, bottom: undefined, rotation: 8, size: "w-[72px] h-[72px] md:w-[288px] md:h-[288px]" },
+  { top: "64%", left: "16%", right: undefined, bottom: undefined, rotation: -15, size: "w-[80px] h-[80px] md:w-[320px] md:h-[320px]" },
 
   // 3. Right Column Outer
-  { top: "2%", left: undefined, right: "1%", bottom: undefined, rotation: 12, size: "w-[192px] h-[192px] md:w-[320px] md:h-[320px]" },
-  { top: "26%", left: undefined, right: "2%", bottom: undefined, rotation: -8, size: "w-[224px] h-[224px] md:w-[352px] md:h-[352px]" },
-  { top: "52%", left: undefined, right: "1%", bottom: undefined, rotation: 15, size: "w-[192px] h-[192px] md:w-[320px] md:h-[320px]" },
-  { top: "76%", left: undefined, right: "3%", bottom: undefined, rotation: -6, size: "w-[224px] h-[224px] md:w-[352px] md:h-[352px]" },
+  { top: "2%", left: undefined, right: "1%", bottom: undefined, rotation: 12, size: "w-[80px] h-[80px] md:w-[320px] md:h-[320px]" },
+  { top: "26%", left: undefined, right: "2%", bottom: undefined, rotation: -8, size: "w-[88px] h-[88px] md:w-[352px] md:h-[352px]" },
+  { top: "52%", left: undefined, right: "1%", bottom: undefined, rotation: 15, size: "w-[80px] h-[80px] md:w-[320px] md:h-[320px]" },
+  { top: "76%", left: undefined, right: "3%", bottom: undefined, rotation: -6, size: "w-[88px] h-[88px] md:w-[352px] md:h-[352px]" },
 
   // 4. Right Column Inner
-  { top: "14%", left: undefined, right: "16%", bottom: undefined, rotation: 6, size: "w-[160px] h-[160px] md:w-[288px] md:h-[288px]" },
-  { top: "38%", left: undefined, right: "15%", bottom: undefined, rotation: -11, size: "w-[160px] h-[160px] md:w-[288px] md:h-[288px]" },
-  { top: "64%", left: undefined, right: "16%", bottom: undefined, rotation: 9, size: "w-[192px] h-[192px] md:w-[320px] md:h-[320px]" },
+  { top: "14%", left: undefined, right: "16%", bottom: undefined, rotation: 6, size: "w-[72px] h-[72px] md:w-[288px] md:h-[288px]" },
+  { top: "38%", left: undefined, right: "15%", bottom: undefined, rotation: -11, size: "w-[72px] h-[72px] md:w-[288px] md:h-[288px]" },
+  { top: "64%", left: undefined, right: "16%", bottom: undefined, rotation: 9, size: "w-[80px] h-[80px] md:w-[320px] md:h-[320px]" },
 
   // 5. Top Strip Center
-  { top: "1%", left: "30%", right: undefined, bottom: undefined, rotation: -9, size: "w-[160px] h-[160px] md:w-[288px] md:h-[288px]" },
-  { top: "2%", left: "46%", right: undefined, bottom: undefined, rotation: 4, size: "w-[192px] h-[192px] md:w-[320px] md:h-[320px]" },
-  { top: "1%", left: "62%", right: undefined, bottom: undefined, rotation: -6, size: "w-[160px] h-[160px] md:w-[288px] md:h-[288px]" },
+  { top: "1%", left: "30%", right: undefined, bottom: undefined, rotation: -9, size: "w-[72px] h-[72px] md:w-[288px] md:h-[288px]" },
+  { top: "2%", left: "46%", right: undefined, bottom: undefined, rotation: 4, size: "w-[80px] h-[80px] md:w-[320px] md:h-[320px]" },
+  { top: "1%", left: "62%", right: undefined, bottom: undefined, rotation: -6, size: "w-[72px] h-[72px] md:w-[288px] md:h-[288px]" },
 
   // 6. Bottom Strip Center
-  { top: undefined, left: "30%", right: undefined, bottom: "1%", rotation: 14, size: "w-[160px] h-[160px] md:w-[288px] md:h-[288px]" },
-  { top: undefined, left: "46%", right: undefined, bottom: "2%", rotation: -8, size: "w-[192px] h-[192px] md:w-[320px] md:h-[320px]" },
-  { top: undefined, left: "62%", right: undefined, bottom: "1%", rotation: 11, size: "w-[160px] h-[160px] md:w-[288px] md:h-[288px]" },
+  { top: undefined, left: "30%", right: undefined, bottom: "1%", rotation: 14, size: "w-[72px] h-[72px] md:w-[288px] md:h-[288px]" },
+  { top: undefined, left: "46%", right: undefined, bottom: "2%", rotation: -8, size: "w-[80px] h-[80px] md:w-[320px] md:h-[320px]" },
+  { top: undefined, left: "62%", right: undefined, bottom: "1%", rotation: 11, size: "w-[72px] h-[72px] md:w-[288px] md:h-[288px]" },
 ];
 
 function FloatingPhotosBackground() {
@@ -156,7 +153,7 @@ function FloatingPhotosBackground() {
       {animatedPhotos.map((photo, i) => (
         <motion.div
           key={i}
-          className={`absolute ${photo.pos.size} p-4 bg-white rounded-3xl shadow-[0_24px_50px_rgba(0,0,0,0.15)] border border-slate-100/50 opacity-55 md:opacity-75`}
+          className={`absolute ${photo.pos.size} p-1.5 md:p-4 bg-white rounded-xl md:rounded-3xl shadow-[0_8px_20px_rgba(0,0,0,0.12)] md:shadow-[0_24px_50px_rgba(0,0,0,0.15)] border border-slate-100/50 opacity-55 md:opacity-75`}
           style={{ 
             top: photo.pos.top, 
             left: photo.pos.left, 
@@ -175,7 +172,7 @@ function FloatingPhotosBackground() {
             delay: photo.floatDelay
           }}
         >
-          <img src={photo.url} alt={`Memory ${i}`} className="w-full h-full object-cover rounded-2xl" />
+          <img src={photo.url} alt={`Memory ${i}`} className="w-full h-full object-cover rounded-lg md:rounded-2xl" />
         </motion.div>
       ))}
     </div>
@@ -351,16 +348,15 @@ export default function App() {
       <FloatingHearts />
       <CursorHearts />
       
-      {/* Hidden music player */}
-      <Player 
-        url="https://www.youtube.com/watch?v=dPiQbEDWDG8" 
-        playing={hasInteracted} 
-        loop={true}
-        volume={0.5}
-        width="0" 
-        height="0" 
-        style={{ display: 'none' }}
-      />
+      {/* Hidden music player with native iframe autoplay bypass */}
+      {screen !== 'login' && (
+        <iframe
+          style={{ position: 'absolute', width: '1px', height: '1px', left: '-9999px', top: '-9999px', opacity: 0 }}
+          src="https://www.youtube.com/embed/dPiQbEDWDG8?autoplay=1&loop=1&playlist=dPiQbEDWDG8&controls=0"
+          title="Background Music"
+          allow="autoplay; encrypted-media"
+        />
+      )}
 
       <AnimatePresence mode="wait">
         {screen === 'login' && (
@@ -369,35 +365,35 @@ export default function App() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="w-full max-w-md bg-white/70 backdrop-blur-xl border border-white/50 shadow-[0_32px_64px_-16px_rgba(255,182,193,0.4)] rounded-[48px] p-12 text-center z-10"
+            className="w-full max-w-md bg-white/70 backdrop-blur-xl border border-white/50 shadow-[0_32px_64px_-16px_rgba(255,182,193,0.4)] rounded-[32px] md:rounded-[48px] p-6 md:p-12 pb-8 text-center z-10"
           >
-            <div className="flex justify-center mb-6 text-rose-500">
-              <LockKeyhole size={48} strokeWidth={1.5} />
+            <div className="flex justify-center mb-4 md:mb-6 text-rose-500">
+              <LockKeyhole className="w-9 h-9 md:w-12 md:h-12" strokeWidth={1.5} />
             </div>
-            <h1 className="text-3xl font-extrabold text-slate-800 mb-4 tracking-tight">
+            <h1 className="text-2xl md:text-3xl font-extrabold text-slate-800 mb-2 md:mb-4 tracking-tight">
               Para desbloquear sua surpresa
             </h1>
-            <p className="text-slate-600 mb-8 text-sm">
+            <p className="text-slate-600 mb-6 md:mb-8 text-xs md:text-sm">
               insira a data em que nossa história começou (DD/MM/AAAA)
             </p>
-
-            <form onSubmit={handleLogin} className="space-y-4">
+ 
+            <form onSubmit={handleLogin} className="space-y-3 md:space-y-4">
               <div>
                 <input
                   type="text"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="DD/MM/AAAA"
-                  className="w-full px-4 py-4 rounded-2xl border-2 border-white focus:outline-none focus:ring-2 focus:ring-rose-400 tracking-widest text-center text-lg text-slate-700 bg-white/50 shadow-sm"
+                  className="w-full px-4 py-3 md:py-4 rounded-xl md:rounded-2xl border-2 border-white focus:outline-none focus:ring-2 focus:ring-rose-400 tracking-widest text-center text-base md:text-lg text-slate-700 bg-white/50 shadow-sm"
                 />
               </div>
               <AnimatePresence>
                 {loginError && (
                   <motion.p
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    exit={{ opacity: 0, height: 0 }}
-                    className="text-rose-500 text-sm flex items-center justify-center gap-1 font-bold"
+                     initial={{ opacity: 0, height: 0 }}
+                     animate={{ opacity: 1, height: 'auto' }}
+                     exit={{ opacity: 0, height: 0 }}
+                     className="text-rose-500 text-xs md:text-sm flex items-center justify-center gap-1 font-bold"
                   >
                     <AlertCircle size={14} /> Data incorreta. Tente novamente!
                   </motion.p>
@@ -405,7 +401,7 @@ export default function App() {
               </AnimatePresence>
               <button
                 type="submit"
-                className="w-full bg-gradient-to-r from-rose-500 to-pink-600 text-white font-bold py-5 rounded-2xl shadow-xl shadow-rose-200 transform hover:scale-[1.02] transition-all flex justify-center items-center gap-2 text-xl"
+                className="w-full bg-gradient-to-r from-rose-500 to-pink-600 text-white font-bold py-4 md:py-5 rounded-xl md:rounded-2xl shadow-xl shadow-rose-200 transform hover:scale-[1.01] md:hover:scale-[1.02] transition-all flex justify-center items-center gap-2 text-lg md:text-xl"
               >
                 <span>Desbloquear</span>
                 <LockOpen size={18} />
@@ -420,25 +416,25 @@ export default function App() {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 1.05 }}
-            className="w-full max-w-[600px] bg-white/70 backdrop-blur-xl border border-white/50 shadow-[0_32px_64px_-16px_rgba(255,182,193,0.4)] rounded-[48px] z-10 overflow-hidden flex flex-col"
+            className="w-full max-w-[600px] bg-white/70 backdrop-blur-xl border border-white/50 shadow-[0_32px_64px_-16px_rgba(255,182,193,0.4)] rounded-[32px] md:rounded-[48px] z-10 overflow-hidden flex flex-col"
           >
-            <div className="px-10 pt-10 pb-6 w-full flex flex-col items-center">
-              <div className="w-full flex justify-between items-center mb-8">
-                <div className="flex space-x-1.5 flex-wrap">
+            <div className="px-6 md:px-10 pt-6 md:pt-10 pb-4 md:pb-6 w-full flex flex-col items-center">
+              <div className="w-full flex flex-col sm:flex-row justify-between items-center gap-4 mb-4 md:mb-8">
+                <div className="flex space-x-1.5 w-full sm:w-auto flex-1">
                   {QUESTIONS.map((_, idx) => (
-                    <div key={idx} className={`w-4 md:w-6 h-1.5 rounded-full ${idx <= currentQuestionIdx ? 'bg-rose-500' : 'bg-rose-200'}`}></div>
+                    <div key={idx} className={`h-1.5 rounded-full flex-1 sm:w-6 ${idx <= currentQuestionIdx ? 'bg-rose-500' : 'bg-rose-200'}`}></div>
                   ))}
                 </div>
-                <span className="text-xs font-bold uppercase tracking-widest text-rose-400 shrink-0 ml-4">
+                <span className="text-[10px] md:text-xs font-bold uppercase tracking-widest text-rose-400 shrink-0">
                   Pergunta {currentQuestionIdx + 1}/{QUESTIONS.length}
                 </span>
               </div>
-              <div className="text-2xl font-extrabold text-slate-800 leading-snug tracking-tight text-center">
+              <div className="text-xl md:text-2xl font-extrabold text-slate-800 leading-snug tracking-tight text-center">
                 {QUESTIONS[currentQuestionIdx].question}
               </div>
             </div>
 
-            <div className="px-10 pb-10 space-y-4">
+            <div className="px-6 md:px-10 pb-6 md:pb-10 space-y-3 md:space-y-4">
               {QUESTIONS[currentQuestionIdx].options.map((option, idx) => {
                 const q = QUESTIONS[currentQuestionIdx];
                 const isSelected = selectedOption === option;
@@ -449,7 +445,7 @@ export default function App() {
                   <button
                     key={idx}
                     onClick={() => handleAnswer(option)}
-                    className={`w-full p-5 rounded-2xl text-left transition-all border-2 shadow-sm transform hover:scale-[1.01] flex items-center justify-between ${
+                    className={`w-full p-4 md:p-5 rounded-xl md:rounded-2xl text-left transition-all border-2 shadow-sm transform hover:scale-[1.01] flex items-center justify-between ${
                       isCorrect
                         ? 'border-green-400 bg-green-50 text-green-700'
                         : isWrong
@@ -457,7 +453,7 @@ export default function App() {
                         : 'border-white bg-white/50 hover:bg-white text-slate-700 hover:shadow-md'
                     }`}
                   >
-                    <span className="font-bold text-lg">{option}</span>
+                    <span className="font-bold text-base md:text-lg">{option}</span>
                     {isCorrect && (
                       <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }}>
                         <Heart className="text-green-500" fill="currentColor" size={20} />
@@ -476,7 +472,7 @@ export default function App() {
                   exit={{ opacity: 0, height: 0 }}
                   className="px-6 pb-6 text-center"
                 >
-                  <div className="bg-rose-50 text-rose-600 px-5 py-4 rounded-2xl text-sm font-bold border border-rose-100 mb-2">
+                  <div className="bg-rose-50 text-rose-600 px-5 py-4 rounded-xl md:rounded-2xl text-xs md:text-sm font-bold border border-rose-100 mb-2">
                     {hint}
                   </div>
                 </motion.div>
@@ -489,9 +485,9 @@ export default function App() {
                   initial={{ opacity: 0, scale: 0.9, y: -20 }}
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.9, y: 10 }}
-                  className="absolute inset-0 z-50 flex items-center justify-center p-6 bg-white/40 backdrop-blur-sm rounded-[48px]"
+                  className="absolute inset-0 z-50 flex items-center justify-center p-4 md:p-6 bg-white/40 backdrop-blur-sm rounded-[32px] md:rounded-[48px]"
                 >
-                  <div className="bg-white p-8 rounded-3xl shadow-2xl border border-rose-100 text-center max-w-sm">
+                  <div className="bg-white p-6 md:p-8 rounded-2xl md:rounded-3xl shadow-2xl border border-rose-100 text-center max-w-sm mx-4">
                     <motion.div
                       animate={{ scale: [1, 1.2, 1] }}
                       transition={{ repeat: Infinity, duration: 1.5 }}
@@ -499,8 +495,8 @@ export default function App() {
                     >
                       <Heart size={48} fill="currentColor" />
                     </motion.div>
-                    <h2 className="text-2xl font-extrabold text-slate-800 mb-2">Acertou!</h2>
-                    <p className="text-slate-600 font-medium">
+                    <h2 className="text-xl md:text-2xl font-extrabold text-slate-800 mb-2">Acertou!</h2>
+                    <p className="text-slate-600 text-sm md:text-base font-medium leading-relaxed">
                       É, essa é uma pergunta difícil mesmo! Gostamos de comer de tudo juntos rsrsrs ❤️!
                     </p>
                   </div>
@@ -516,35 +512,35 @@ export default function App() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
-            className="w-full max-w-[600px] z-10 bg-white/70 backdrop-blur-xl border border-white/50 shadow-[0_32px_64px_-16px_rgba(255,182,193,0.4)] rounded-[48px] p-12 flex flex-col items-center text-center"
+            className="w-full max-w-[600px] z-10 bg-white/70 backdrop-blur-xl border border-white/50 shadow-[0_32px_64px_-16px_rgba(255,182,193,0.4)] rounded-[32px] md:rounded-[48px] p-6 md:p-12 flex flex-col items-center text-center"
           >
-            <div className="w-full flex justify-between items-center mb-8 relative z-10">
+            <div className="w-full flex justify-between items-center mb-6 md:mb-8 relative z-10">
               <div className="flex space-x-2">
-                <div className="w-8 h-1.5 rounded-full bg-rose-500"></div>
-                <div className="w-8 h-1.5 rounded-full bg-rose-500"></div>
-                <div className="w-8 h-1.5 rounded-full bg-rose-500"></div>
-                <div className="w-8 h-1.5 rounded-full bg-rose-500"></div>
+                <div className="w-6 md:w-8 h-1.5 rounded-full bg-rose-500"></div>
+                <div className="w-6 md:w-8 h-1.5 rounded-full bg-rose-500"></div>
+                <div className="w-6 md:w-8 h-1.5 rounded-full bg-rose-500"></div>
+                <div className="w-6 md:w-8 h-1.5 rounded-full bg-rose-500"></div>
               </div>
-              <span className="text-xs font-bold uppercase tracking-widest text-rose-400">Missão Cumprida</span>
+              <span className="text-[10px] md:text-xs font-bold uppercase tracking-widest text-rose-400">Missão Cumprida</span>
             </div>
 
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ delay: 0.3, type: 'spring', damping: 10 }}
-              className="mb-8 relative z-10"
+              className="mb-6 md:mb-8 relative z-10"
             >
-              <div className="w-24 h-24 bg-gradient-to-br from-rose-400 to-pink-500 rounded-full flex items-center justify-center shadow-lg shadow-rose-200 text-white">
-                <Heart size={48} fill="currentColor" />
+              <div className="w-16 h-16 md:w-24 md:h-24 bg-gradient-to-br from-rose-400 to-pink-500 rounded-full flex items-center justify-center shadow-lg shadow-rose-200 text-white">
+                <Heart className="w-8 h-8 md:w-12 md:h-12" fill="currentColor" />
               </div>
-              <div className="absolute -top-1 -right-1 w-6 h-6 bg-green-500 border-4 border-white rounded-full"></div>
+              <div className="absolute -top-1 -right-1 w-4 h-4 md:w-6 md:h-6 bg-green-500 border-2 md:border-4 border-white rounded-full"></div>
             </motion.div>
 
             <motion.h1 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
-              className="text-4xl font-extrabold text-slate-800 mb-4 tracking-tight relative z-10"
+              className="text-2xl md:text-4xl font-extrabold text-slate-800 mb-2 md:mb-4 tracking-tight relative z-10"
             >
               Para: <span className="text-rose-600">Letícia</span>
             </motion.h1>
@@ -553,15 +549,15 @@ export default function App() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.8, duration: 1 }}
-              className="relative z-10 mb-10 px-4 space-y-4"
+              className="relative z-10 mb-6 md:mb-10 px-0 md:px-4 space-y-3 md:space-y-4"
             >
-              <p className="text-lg text-slate-600 leading-relaxed">
+              <p className="text-sm md:text-lg text-slate-600 leading-relaxed">
                 Você acertou cada detalhe da nossa jornada! Da academia ao Canadá, do nosso anime favorito até o sonho do nosso cruzeiro. Só você conseguiria acertar todas as perguntas, pois nos conhecemos tão bem e dividimos todos os nossos sonhos juntos. Isso só prova o quanto a nossa conexão é única. Mal posso esperar para construir cada um desses sonhos ao seu lado.
               </p>
-              <p className="text-lg text-slate-600 leading-relaxed">
+              <p className="text-sm md:text-lg text-slate-600 leading-relaxed">
                 Iremos conquistar todos eles, independente de qualquer dificuldade que apareça em nosso caminho, sempre com Deus como nosso guia e nosso pilar! Eu te amo mais do que qualquer coisa neste mundo. Quero sempre ser o meu lado bom contigo, sempre te fazer feliz para ver o seu sorriso que eu adoro e que me faz tão bem!
               </p>
-              <p className="text-xl font-bold text-rose-600 pt-2">
+              <p className="text-base md:text-xl font-bold text-rose-600 pt-1 md:pt-2">
                 Feliz Dia dos Namorados para a melhor namorada que eu poderia ter!!! Te amo, Letícia ❤️
               </p>
             </motion.div>
@@ -570,24 +566,24 @@ export default function App() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 1.5 }}
-              className="w-full space-y-4 relative z-10"
+              className="w-full space-y-3 md:space-y-4 relative z-10"
             >
               <button
                 onClick={() => setScreen('login')}
-                className="w-full py-5 bg-gradient-to-r from-rose-500 to-pink-600 text-white rounded-2xl font-bold text-xl shadow-xl shadow-rose-200 transform hover:scale-[1.02] transition-all flex items-center justify-center gap-3"
+                className="w-full py-4 md:py-5 bg-gradient-to-r from-rose-500 to-pink-600 text-white rounded-xl md:rounded-2xl font-bold text-lg md:text-xl shadow-xl shadow-rose-200 transform hover:scale-[1.01] md:hover:scale-[1.02] transition-all flex items-center justify-center gap-3"
               >
                 Feliz Dia dos Namorados!
               </button>
               
-              <div className="flex items-center justify-center space-x-6 pt-4">
+              <div className="flex items-center justify-center space-x-6 pt-3 md:pt-4">
                 <div className="text-center">
-                  <p className="text-[10px] uppercase tracking-tighter text-slate-400 font-bold">Data de Início</p>
-                  <p className="text-sm font-mono font-bold text-rose-500">04.03.2023</p>
+                  <p className="text-[9px] md:text-[10px] uppercase tracking-tighter text-slate-400 font-bold">Data de Início</p>
+                  <p className="text-xs md:text-sm font-mono font-bold text-rose-500">04.03.2023</p>
                 </div>
-                <div className="h-8 w-px bg-slate-200"></div>
+                <div className="h-6 md:h-8 w-px bg-slate-200"></div>
                 <div className="text-center">
-                  <p className="text-[10px] uppercase tracking-tighter text-slate-400 font-bold">Status</p>
-                  <p className="text-sm font-bold text-slate-700 italic underline decoration-rose-300">Para Sempre</p>
+                  <p className="text-[9px] md:text-[10px] uppercase tracking-tighter text-slate-400 font-bold">Status</p>
+                  <p className="text-xs md:text-sm font-bold text-slate-700 italic underline decoration-rose-300">Para Sempre</p>
                 </div>
               </div>
             </motion.div>
