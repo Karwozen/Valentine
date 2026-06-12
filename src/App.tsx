@@ -328,6 +328,15 @@ export default function App() {
   const [allCorrectMarked, setAllCorrectMarked] = useState(false);
   const [showAllCorrectModal, setShowAllCorrectModal] = useState(false);
 
+  // Loop infinito e sincronizado a cada 15 segundos (duração do vídeo) para crossfade suave
+  const [videoCycle, setVideoCycle] = useState(0);
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setVideoCycle(prev => prev + 1);
+    }, 15000); // 15 segundos
+    return () => clearInterval(interval);
+  }, []);
+
   // Explosão abundante e realista de confetes na Revelação Final
   useEffect(() => {
     if (screen === 'reveal') {
@@ -419,14 +428,21 @@ export default function App() {
     <div className="min-h-screen bg-[#FFF5F7] flex flex-col items-center justify-center p-4 font-sans relative overflow-hidden">
       {/* Video de Background Desfocado para clima romântico */}
       <div className="fixed inset-0 w-full h-full overflow-hidden pointer-events-none z-0">
-        <iframe
-          src="https://drive.google.com/file/d/1Gc5WcbyraJCL6Bdod4lcQMh8jbOKFqrN/preview?autoplay=1&mute=1&controls=0&loop=1"
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[140%] h-[140%] min-w-full min-h-full border-none pointer-events-none"
-          allow="autoplay; encrypted-media"
-          title="Background Video"
-          style={{ filter: 'blur(16px)', opacity: 0.45 }}
-        />
-        <div className="absolute inset-0 bg-[#FFF5F7]/45 pointer-events-none" />
+        <AnimatePresence mode="popLayout">
+          <motion.iframe
+            key={videoCycle}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 0.50 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 2, ease: "easeInOut" }}
+            src="https://drive.google.com/file/d/1Gc5WcbyraJCL6Bdod4lcQMh8jbOKFqrN/preview?autoplay=1&mute=1&controls=0"
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[140%] h-[140%] min-w-full min-h-full border-none pointer-events-none"
+            allow="autoplay; encrypted-media"
+            title="Background Video"
+            style={{ filter: 'blur(12px)' }}
+          />
+        </AnimatePresence>
+        <div className="absolute inset-0 bg-[#FFF5F7]/50 pointer-events-none" />
       </div>
 
       <div className="absolute top-[-100px] right-[-100px] w-80 h-80 bg-rose-100 rounded-full blur-[80px] opacity-60"></div>
