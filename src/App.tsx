@@ -417,20 +417,16 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#FFF5F7] flex flex-col items-center justify-center p-4 font-sans relative overflow-hidden">
-      {/* Video de Background Desfocado em 65% para clima romântico */}
+      {/* Video de Background Desfocado para clima romântico */}
       <div className="fixed inset-0 w-full h-full overflow-hidden pointer-events-none z-0">
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="w-full h-full object-cover scale-110"
-          style={{ filter: 'blur(16px)', opacity: 0.4 }}
-        >
-          <source src="https://docs.google.com/uc?export=download&id=1Gc5WcbyraJCL6Bdod4lcQMh8jbOKFqrN" type="video/mp4" />
-          <source src="https://drive.google.com/uc?export=download&id=1Gc5WcbyraJCL6Bdod4lcQMh8jbOKFqrN" type="video/mp4" />
-        </video>
-        <div className="absolute inset-0 bg-[#FFF5F7]/40 pointer-events-none" />
+        <iframe
+          src="https://drive.google.com/file/d/1Gc5WcbyraJCL6Bdod4lcQMh8jbOKFqrN/preview?autoplay=1&mute=1&controls=0&loop=1"
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[140%] h-[140%] min-w-full min-h-full border-none pointer-events-none"
+          allow="autoplay; encrypted-media"
+          title="Background Video"
+          style={{ filter: 'blur(16px)', opacity: 0.45 }}
+        />
+        <div className="absolute inset-0 bg-[#FFF5F7]/45 pointer-events-none" />
       </div>
 
       <div className="absolute top-[-100px] right-[-100px] w-80 h-80 bg-rose-100 rounded-full blur-[80px] opacity-60"></div>
